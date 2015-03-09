@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 public class AlarmService extends Service {
     private static final String TAG = "AlarmService_Debug";
     private static final String FOLLOWED_MANGAS = "followed_mangas_shared_preferences";
+    final ArrayList<String> updatedManga = new ArrayList<String>(); // to parse as JSONArray for Push notification
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -45,6 +46,9 @@ public class AlarmService extends Service {
                 checkUpdateFromWebsite();
             }
         }).start();
+
+
+
         return START_NOT_STICKY;
     }
 
@@ -61,7 +65,6 @@ public class AlarmService extends Service {
     }
 
     private void checkUpdateFromWebsite(){
-//        // TODO - REFACTOR INTO GCM
 //        final SharedPreferences preferences = getSharedPreferences(FOLLOWED_MANGAS, 0);
 
         String url = "http://www.mangareader.net";
@@ -82,7 +85,7 @@ public class AlarmService extends Service {
 
         Pattern p = Pattern.compile(".+\\/([\\w-]+)\\/(\\d+)");
         ArrayList<String> checked = new ArrayList<String>(); // to avoid duplicates
-        final ArrayList<String> updatedManga = new ArrayList<String>(); // to parse as JSONArray for Push notification
+
         for (final Element link : links) {
             String data = link.attr("abs:href");
 //            print(" * a: <%s>  (%s)", data, trim(link.text(), 20));
@@ -104,21 +107,12 @@ public class AlarmService extends Service {
                                 if (manga.getMangaChapter() < chapter) {
                                     Log.i(TAG, "New chapter available! Updating database...");
                                     manga.setMangaChapter(chapter);
-                                    manga.saveInBackground(new SaveCallback() {
-                                        @Override
-                                        public void done(ParseException e) {
-                                            if (e == null) {
-                                                Log.i(TAG, "Updated database with latest chapter");
-                                            } else {
-                                                Log.i(TAG, "Error updating database: " + e.getCode());
-                                            }
-                                        }
-                                    });
+                                    manga.saveInBackground();
 
                                     // Use identifier in the JSONArray, as it will be passed to check in shared preferences
                                     updatedManga.add(manga.getReadableName());
                                 }
-                                //else count ++, if count > 5, stop wasting data ??
+                                // TODO - else count ++, if count > 5, stop wasting data ??
 
                             } else {
                                 // else add new manga onto parse
@@ -141,11 +135,18 @@ public class AlarmService extends Service {
             }
         }
 
-        // End of for loop, send push notification for all the updated objects
-        if(updatedManga.size() > 0) sendPushNotification(updatedManga);
+//
         try {
-            // This is just in case the background stuff dont finish before we stop the service. Stopping service cause good design?
-            Thread.sleep(5000l);
+            // This is to make sure the main thread here receives the updates from the worker thread,
+            // before sending the proper push notifications
+
+            // Reasoning behind this is because I can't get a handle to the querying thread, and cannot properly wait for them to end
+            Thread.sleep(10000l);
+            // End of for loop, send push notification for all the updated objects
+            if(updatedManga.size() > 0) {
+                Log.i(TAG, "Updated Manga: " + updatedManga.toString());
+                sendPushNotification(updatedManga);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

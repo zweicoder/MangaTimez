@@ -74,21 +74,16 @@ public class MainActivity extends ActionBarActivity {
 //                new Thread(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        sendPushNotification();
+////                        sendPushNotification();
 ////                        checkUpdateFromWebsite();
+//                        callAlarmService();
 //                    }
 //                }).start();
 //
 //            }
 //        });
-//
-//        Button button2 = (Button) findViewById(R.id.button2);
-//        button2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                callAlarmService();
-//            }
-//        });
+
+
 
         preferences = getSharedPreferences(FOLLOWED_MANGAS, 0);
         boolean hasItems = false;
@@ -259,5 +254,30 @@ public class MainActivity extends ActionBarActivity {
 
     private static void print(String s, Object... args) {
         Log.i(TAG, String.format(s, args));
+    }
+
+
+    private void sendPushNotification(ArrayList<String> updatedManga) {
+        ParsePush push = new ParsePush();
+        push.setChannel("");
+        JSONArray jsonArray = new JSONArray(updatedManga);
+        JSONObject data = new JSONObject();
+        try {
+            data.put("updated", jsonArray);
+            push.setData(data);
+            push.sendInBackground(new SendCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if(e== null){
+                        Log.i(TAG, "sent push");
+                    }else{
+                        Log.i(TAG, "Error: " + e.getCode());
+                    }
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }
