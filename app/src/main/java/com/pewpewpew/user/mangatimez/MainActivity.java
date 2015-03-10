@@ -163,13 +163,14 @@ public class MainActivity extends ActionBarActivity {
                 ParseQuery<Manga> query = ParseQuery.getQuery(Manga.class);
                 query.whereContainedIn("readableName", items);
 //                query.whereEqualTo("name",)
-                query.orderByAscending("readableName");
+                query.orderByDescending("updatedAt");
                 return query;
             }
         };
        return new ParseQueryAdapter<Manga>(this, factory){
             @Override
             public View getItemView(final Manga manga, View v, ViewGroup parent) {
+                // TODO - Condense all TextViews into one and use XML Placeholders
                 if (v == null){
                     v= getLayoutInflater().inflate(R.layout.list_item_main, parent, false);
                 }

@@ -1,6 +1,8 @@
 package com.pewpewpew.user.mangatimez;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,32 +34,52 @@ public class MangaPushBroadcastReceiver extends ParsePushBroadcastReceiver {
             try {
                 JSONObject data = new JSONObject(json);
                 JSONArray array = data.getJSONArray("updated");
-                String notificationStr = "Updates: ";
-                boolean hasUpdates = false;
+                String notificationStr = "";
+
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+                builder.setContentTitle("It's MangaTime!")
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentText("New Manga Updates!")
+                        .setContentIntent(PendingIntent.getActivity(
+                                context,
+                                0,
+                                new Intent(context,MainActivity.class),
+                                0
+                        ))
+                        .setAutoCancel(true);
+
+//                int numMessages = 0;
+                int numUpdates = 0;
                 if(array != null) {
-                    Log.i(TAG, "Followed mangas: "+array.toString());
+//                    Log.i(TAG, "Followed mangas: "+array.toString());
                     for(int i = 0; i<array.length(); i++){
                         String key = array.getString(i);
 
                         if(preferences.getBoolean(key,false)){
-                            hasUpdates = true;
-                            String formatting = i==array.length() -1? "":", ";
+                            numUpdates ++;
+                            String formatting = i==array.length() -1? "":"\n";
                             notificationStr += key+ formatting;
+
                         }
                     }
 
-                    if(hasUpdates){
-                        Log.i(TAG, "Notification String: " + notificationStr);
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-                        builder.setContentText(notificationStr);
-                        builder.setContentTitle("It's MangaTime!");
-                        builder.setSmallIcon(R.drawable.ic_launcher);
-                        NotificationManager mNotificationManager =
-                                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                        mNotificationManager.notify(1, builder.build());
-
-//                        super.onPushReceive(context, intent);
+                    if(numUpdates == 1){
+                        Log.i(TAG, "Updating user...");
+                        // TODO - Fix the case where the notification is immediately overriden/ overriden because user didn't check the notification
+                        builder.setContentText("Updated: "+notificationStr);
+                    }else if(numUpdates > 1){
+                        Log.i(TAG, "Notifying with big text...");
+                        builder.setContentText("Updated: "+notificationStr.replaceAll("\n",", "))
+                                .setNumber(numUpdates)
+                                .setStyle(
+                                        new NotificationCompat.BigTextStyle().bigText(notificationStr)
+                                );
                     }
+
+                    NotificationManager mNotificationManager =
+                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    mNotificationManager.notify(1, builder.build());
                 }
             } catch (JSONException e) {
                 Log.i(TAG, "No json array found!");
