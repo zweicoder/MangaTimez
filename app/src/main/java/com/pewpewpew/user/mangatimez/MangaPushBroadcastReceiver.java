@@ -68,6 +68,9 @@ public class MangaPushBroadcastReceiver extends ParsePushBroadcastReceiver {
                         Log.i(TAG, "Updating user...");
                         // TODO - Fix the case where the notification is immediately overriden/ overriden because user didn't check the notification
                         builder.setContentText("Updated: "+notificationStr);
+                        NotificationManager mNotificationManager =
+                                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.notify(1, builder.build());
                     }else if(numUpdates > 1){
                         Log.i(TAG, "Notifying with big text...");
                         builder.setContentText("Updated: "+notificationStr.replaceAll("\n",", "))
@@ -75,11 +78,12 @@ public class MangaPushBroadcastReceiver extends ParsePushBroadcastReceiver {
                                 .setStyle(
                                         new NotificationCompat.BigTextStyle().bigText(notificationStr)
                                 );
+                        NotificationManager mNotificationManager =
+                                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.notify(1, builder.build());
                     }
 
-                    NotificationManager mNotificationManager =
-                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    mNotificationManager.notify(1, builder.build());
+
                 }
             } catch (JSONException e) {
                 Log.i(TAG, "No json array found!");
