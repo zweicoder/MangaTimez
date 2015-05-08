@@ -8,5 +8,7 @@
     <string name="separator">|</string>
     <string name="action_refresh">Refresh</string>
     <string name="main_placeholder">Click on the button at the top right to follow a Manga, get notified when a new chapter of it comes out!</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Full/Partial name (Case sensitive!)</string>
 
 </resources>

@@ -26,6 +26,8 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +37,8 @@ import java.util.regex.Pattern;
 public class AlarmService extends Service {
     private static final String TAG = "AlarmService_Debug";
     private static final String FOLLOWED_MANGAS = "followed_mangas_shared_preferences";
-    final ArrayList<String> updatedManga = new ArrayList<String>(); // to parse as JSONArray for Push notification
+    final ArrayList<Manga> updatedManga = new ArrayList<Manga>(); // to parse as JSONArray for Push notification
+//    final HashMap<Manga, Integer> updatedManga = new HashMap<>();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -44,12 +47,18 @@ public class AlarmService extends Service {
             public void run() {
                 Log.i(TAG, "Checking for updates");
                 checkUpdateFromWebsite();
+
             }
         }).start();
 
 
 
         return START_NOT_STICKY;
+    }
+
+    private boolean checkPushCapability() {
+        
+        return false;
     }
 
     @Override
@@ -106,11 +115,12 @@ public class AlarmService extends Service {
                                 // if manga exists, check chapter
                                 if (manga.getMangaChapter() < chapter) {
                                     Log.i(TAG, "New chapter available! Updating database...");
+                                    // Move this to after sending push notifications if no error?
                                     manga.setMangaChapter(chapter);
-                                    manga.saveInBackground();
+//                                    manga.saveInBackground();
 
                                     // Use identifier in the JSONArray, as it will be passed to check in shared preferences
-                                    updatedManga.add(manga.getReadableName());
+                                    updatedManga.add(manga);
                                 }
                                 // TODO - else count ++, if count > 5, stop wasting data ??
 
@@ -172,10 +182,17 @@ public class AlarmService extends Service {
         });
     }
 
-    private void sendPushNotification(ArrayList<String> updatedManga) {
+    private void sendPushNotification(final ArrayList<Manga> updatedManga) {
+        Log.i(TAG, "Sending Push...");
         ParsePush push = new ParsePush();
         push.setChannel("");
-        JSONArray jsonArray = new JSONArray(updatedManga);
+        // Collate all readableNames for Push Notification
+        ArrayList<String> arr = new ArrayList<>();
+        for(Manga m: updatedManga){
+            arr.add(m.getReadableName());
+        }
+
+        JSONArray jsonArray = new JSONArray(arr);
         JSONObject data = new JSONObject();
         try {
             data.put("updated", jsonArray);
@@ -184,7 +201,11 @@ public class AlarmService extends Service {
                 @Override
                 public void done(ParseException e) {
                     if(e== null){
-                        Log.i(TAG, "sent push");
+                        Log.i(TAG, "Updating database...");
+                        //Assume that push is indeed sent out
+                        for(Manga m:updatedManga){
+                            m.saveInBackground();
+                        }
                     }else{
                         Log.i(TAG, "Error: " + e.getCode());
                     }

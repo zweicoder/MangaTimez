@@ -20,7 +20,7 @@ import org.json.JSONObject;
  * Created by User on 03/3/15.
  */
 public class MangaPushBroadcastReceiver extends ParsePushBroadcastReceiver {
-    private static final String TAG = "MangaPushBroadcastReceiver_debug";
+    private static final String TAG = "MangaPushReceiver_debug";
     private static final String FOLLOWED_MANGAS = "followed_mangas_shared_preferences";
 
     @Override
