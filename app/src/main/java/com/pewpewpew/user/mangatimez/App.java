@@ -26,9 +26,6 @@ public class App extends Application {
         ParseObject.registerSubclass(Manga.class);
         Parse.initialize(this, PARSE_APPLICATION_ID, PARSE_CLIENT_KEY);
 
-        Log.i(TAG, "Installation ID: " + ParseInstallation.getCurrentInstallation());
-        ParsePush.subscribeInBackground("user_"+ParseInstallation.getCurrentInstallation());
-
         // Channel "" is the default broadcast channel
         ParsePush.subscribeInBackground("", new SaveCallback() {
             @Override

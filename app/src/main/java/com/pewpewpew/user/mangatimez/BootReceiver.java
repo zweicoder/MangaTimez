@@ -40,6 +40,6 @@ public class BootReceiver extends BroadcastReceiver {
         final AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.cancel(alarmIntent);
         // Schedule the alarm
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),AlarmManager.INTERVAL_HOUR, alarmIntent);
+        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),AlarmManager.INTERVAL_HALF_DAY, alarmIntent);
     }
 }

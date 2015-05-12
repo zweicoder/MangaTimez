@@ -1,5 +1,6 @@
 package com.pewpewpew.user.mangatimez;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -16,14 +17,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.parse.GetCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
@@ -33,15 +31,7 @@ import com.parse.SendCallback;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 // It's MangaTime! App to inform user when a new manga is available (check various sources in future)
 // Stop refreshing webpages for those week/month long updates, download to get notifications ASAP!
 
@@ -52,7 +42,7 @@ import java.util.regex.Pattern;
  *   if it is user's first time adding a new Manga to it
  * - Contains a '+' action button to follow another Manga
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity{
 
     private static final String FOLLOWED_MANGAS = "followed_mangas_shared_preferences";
     private static final int REQUEST_ADD_ITEM = 111;
